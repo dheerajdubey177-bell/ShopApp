@@ -27,6 +27,14 @@ class FoodRepository(private val foodDao: FoodDao) {
         )
     }
 
+    suspend fun updateFood(food: FoodEntity) {
+        foodDao.updateFood(food)
+    }
+
+    suspend fun deleteFood(food: FoodEntity) {
+        foodDao.deleteFood(food)
+    }
+
     suspend fun getFoodsByRestaurant(restaurantId: Int): List<FoodEntity> {
         return foodDao.getFoods().filter { it.restaurantId == restaurantId }
     }

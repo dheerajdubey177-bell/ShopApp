@@ -27,11 +27,11 @@ class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory
             }
             modelClass.isAssignableFrom(RestaurantViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
-                RestaurantViewModel(menuRepository, restaurantRepository, sessionManager) as T
+                RestaurantViewModel(menuRepository, restaurantRepository, foodRepository, sessionManager) as T
             }
             modelClass.isAssignableFrom(HomeViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")
-                HomeViewModel(restaurantRepository) as T
+                HomeViewModel(restaurantRepository, sessionManager) as T
             }
             modelClass.isAssignableFrom(MenuViewModel::class.java) -> {
                 @Suppress("UNCHECKED_CAST")

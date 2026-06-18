@@ -19,28 +19,17 @@ fun RestaurantsScreen(
     onRestaurantClick: (Int) -> Unit,
     viewModel: HomeViewModel = viewModel(factory = ViewModelFactory(LocalContext.current))
 ) {
-    val restaurants by viewModel.restaurants.collectAsState()
-    var searchText by remember { mutableStateOf("") }
+    val restaurants by viewModel.filteredRestaurantsState.collectAsState()
+    val userLocation by viewModel.userLocation.collectAsState()
+    val searchText by viewModel.searchText.collectAsState()
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
 
-    val regions = listOf("All", "Pune West", "Pune East", "Mumbai Express", "Delhi")
-    val cuisines = listOf("All", "Italian", "Indian", "Chinese", "Fast Food")
-
-    var selectedRegion by remember { mutableStateOf("All") }
-    var selectedCuisine by remember { mutableStateOf("All") }
-
-    val filteredRestaurants = restaurants.filter { rest ->
-        val matchesSearch = rest.name.contains(searchText, ignoreCase = true)
-        val matchesRegion = selectedRegion == "All" || rest.address.contains(selectedRegion, ignoreCase = true)
-        // Cuisine filtering is a bit harder as it's currently in description, but we can try:
-        val matchesCuisine = selectedCuisine == "All" || rest.description.contains(selectedCuisine, ignoreCase = true)
-        
-        matchesSearch && matchesRegion && matchesCuisine
-    }
+    val cuisines = listOf("All", "Indian", "Pizza", "Burger", "Coffee", "Chinese", "Italian", "Fast Food")
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Explore") }
+                title = { Text("Explore in $userLocation") }
             )
         }
     ) { padding ->
@@ -51,8 +40,8 @@ fun RestaurantsScreen(
             item {
                 OutlinedTextField(
                     value = searchText,
-                    onValueChange = { searchText = it },
-                    label = { Text("Search restaurants or cuisines") },
+                    onValueChange = { viewModel.onSearchTextChange(it) },
+                    label = { Text("Search for restaurants, food...") },
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     shape = MaterialTheme.shapes.medium,
                     leadingIcon = { Text("🔍") }
@@ -61,27 +50,7 @@ fun RestaurantsScreen(
 
             item {
                 Text(
-                    text = "Filter by Region",
-                    style = MaterialTheme.typography.titleSmall,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                LazyRow(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(regions) { region ->
-                        FilterChip(
-                            selected = selectedRegion == region,
-                            onClick = { selectedRegion = region },
-                            label = { Text(region) }
-                        )
-                    }
-                }
-            }
-
-            item {
-                Text(
-                    text = "Filter by Cuisine",
+                    text = "Cuisine",
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
@@ -90,25 +59,34 @@ fun RestaurantsScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(cuisines) { cuisine ->
+                        val isSelected = if (cuisine == "All") selectedCategory == null else selectedCategory == cuisine
                         SuggestionChip(
-                            onClick = { selectedCuisine = cuisine },
+                            onClick = { 
+                                if (cuisine == "All") viewModel.onCategorySelect(null)
+                                else viewModel.onCategorySelect(cuisine)
+                            },
                             label = { Text(cuisine) },
-                            colors = if(selectedCuisine == cuisine) SuggestionChipDefaults.suggestionChipColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else SuggestionChipDefaults.suggestionChipColors()
+                            colors = if(isSelected) SuggestionChipDefaults.suggestionChipColors(containerColor = MaterialTheme.colorScheme.primaryContainer) else SuggestionChipDefaults.suggestionChipColors()
                         )
                     }
                 }
                 Divider(modifier = Modifier.padding(top = 8.dp))
             }
 
-            if (filteredRestaurants.isEmpty()) {
+            if (restaurants.isEmpty()) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                        Text("No restaurants found", style = MaterialTheme.typography.bodyLarge)
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(32.dp),
+                        horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                    ) {
+                        Text("No restaurants match your filters in $userLocation.", style = MaterialTheme.typography.bodyLarge)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("Try clearing filters or changing location.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
 
-            items(filteredRestaurants) { restaurant ->
+            items(restaurants) { restaurant ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -124,6 +102,13 @@ fun RestaurantsScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
+                            Surface(
+                                modifier = Modifier.padding(12.dp).align(androidx.compose.ui.Alignment.TopEnd),
+                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                                shape = MaterialTheme.shapes.small
+                            ) {
+                                Text(restaurant.region, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), style = MaterialTheme.typography.labelSmall)
+                            }
                         }
                         Column(modifier = Modifier.padding(16.dp)) {
                             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -131,7 +116,9 @@ fun RestaurantsScreen(
                                     restaurant.name,
                                     style = MaterialTheme.typography.titleLarge
                                 )
-                                Text("⭐ 4.5", style = MaterialTheme.typography.labelLarge)
+                                Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small) {
+                                    Text(restaurant.cuisineType, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), style = MaterialTheme.typography.labelSmall)
+                                }
                             }
                             Text(
                                 restaurant.description,
@@ -143,11 +130,6 @@ fun RestaurantsScreen(
                                 Text(
                                     "📍 ${restaurant.address}",
                                     style = MaterialTheme.typography.labelSmall
-                                )
-                                Text(
-                                    "🕒 25-30 mins",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

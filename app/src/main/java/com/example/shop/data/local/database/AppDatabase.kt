@@ -14,7 +14,7 @@ import com.example.shop.data.local.entity.*
         CategoryEntity::class,
         SubCategoryEntity::class
     ],
-    version = 4
+    version = 6
 )
 abstract class AppDatabase :
     RoomDatabase() {

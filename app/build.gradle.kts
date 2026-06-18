@@ -47,6 +47,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")
     implementation("io.coil-kt:coil-compose:2.6.0")
     
+    // Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+    
     implementation("androidx.room:room-runtime:2.7.2")
     implementation("androidx.room:room-ktx:2.7.2")
     ksp("androidx.room:room-compiler:2.7.2")

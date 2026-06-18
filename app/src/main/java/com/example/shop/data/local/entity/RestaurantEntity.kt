@@ -11,6 +11,8 @@ data class RestaurantEntity(
     val name: String,
     val description: String,
     val address: String,
+    val cuisineType: String = "Indian", // e.g., North Indian, South Indian, Chinese, Italian
+    val region: String = "North",      // e.g., North, South, East, West
     val logoUrl: String = "",
     val bannerUrl: String = ""
 )

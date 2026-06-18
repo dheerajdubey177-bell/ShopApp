@@ -20,6 +20,14 @@ class SessionManager(
             .apply()
     }
 
+    fun saveLocation(location: String) {
+        prefs.edit().putString("user_location", location).apply()
+    }
+
+    fun getLocation(): String? {
+        return prefs.getString("user_location", null)
+    }
+
     fun getRole(): String? {
         return prefs.getString("role", null)
     }

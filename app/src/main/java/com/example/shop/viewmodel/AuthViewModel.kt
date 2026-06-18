@@ -27,6 +27,8 @@ class AuthViewModel(
         restaurantName: String = "",
         restaurantDesc: String = "",
         restaurantAddress: String = "",
+        cuisineType: String = "Indian",
+        region: String = "North",
         logoUrl: String = "",
         bannerUrl: String = ""
     ) {
@@ -45,6 +47,8 @@ class AuthViewModel(
                         name = restaurantName,
                         description = restaurantDesc,
                         address = restaurantAddress,
+                        cuisineType = cuisineType,
+                        region = region,
                         logoUrl = logoUrl,
                         bannerUrl = bannerUrl
                     )

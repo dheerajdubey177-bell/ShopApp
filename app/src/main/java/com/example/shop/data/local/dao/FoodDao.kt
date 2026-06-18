@@ -11,6 +11,12 @@ interface FoodDao {
         food: FoodEntity
     )
 
+    @Update
+    suspend fun updateFood(food: FoodEntity)
+
+    @Delete
+    suspend fun deleteFood(food: FoodEntity)
+
     @Query(
         "SELECT * FROM foods"
     )

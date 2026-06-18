@@ -10,8 +10,10 @@ class RestaurantRepository(private val restaurantDao: RestaurantDao) {
         name: String,
         description: String,
         address: String,
-        logoUrl: String,
-        bannerUrl: String
+        cuisineType: String = "Indian",
+        region: String = "North",
+        logoUrl: String = "",
+        bannerUrl: String = ""
     ) {
         restaurantDao.insertRestaurant(
             RestaurantEntity(
@@ -19,6 +21,8 @@ class RestaurantRepository(private val restaurantDao: RestaurantDao) {
                 name = name,
                 description = description,
                 address = address,
+                cuisineType = cuisineType,
+                region = region,
                 logoUrl = logoUrl,
                 bannerUrl = bannerUrl
             )

@@ -10,12 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.shop.data.local.LocationData
 import com.example.shop.model.UserType
 import com.example.shop.ui.components.PrimaryButton
 import com.example.shop.viewmodel.AuthUiEvent
 import com.example.shop.viewmodel.AuthViewModel
 import com.example.shop.viewmodel.ViewModelFactory
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onBackToLogin: () -> Unit,
@@ -35,8 +37,20 @@ fun RegisterScreen(
     var restaurantName by remember { mutableStateOf("") }
     var restaurantDesc by remember { mutableStateOf("") }
     var restaurantAddress by remember { mutableStateOf("") }
+    
+    var selectedState by remember { mutableStateOf("") }
+    var selectedCity by remember { mutableStateOf("") }
+    
+    var stateExpanded by remember { mutableStateOf(false) }
+    var cityExpanded by remember { mutableStateOf(false) }
+
+    var cuisineType by remember { mutableStateOf("Indian") }
     var logoUrl by remember { mutableStateOf("") }
     var bannerUrl by remember { mutableStateOf("") }
+
+    val states = LocationData.getStates()
+    val cities = if (selectedState.isNotBlank()) LocationData.getCities(selectedState) else emptyList()
+    val cuisinesList = listOf("Indian", "Pizza", "Burger", "Coffee", "Chinese", "Fast Food")
 
     LaunchedEffect(Unit) {
         viewModel.uiEvent.collect { event ->
@@ -168,9 +182,89 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = restaurantAddress,
                 onValueChange = { restaurantAddress = it },
-                label = { Text("Restaurant Address") },
+                label = { Text("Exact Address") },
                 modifier = Modifier.fillMaxWidth()
             )
+            
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // State Selection
+            ExposedDropdownMenuBox(
+                expanded = stateExpanded,
+                onExpandedChange = { stateExpanded = !stateExpanded }
+            ) {
+                OutlinedTextField(
+                    value = if (selectedState.isBlank()) "Select State" else selectedState,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("State") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = stateExpanded) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = stateExpanded,
+                    onDismissRequest = { stateExpanded = false }
+                ) {
+                    states.forEach { state ->
+                        DropdownMenuItem(
+                            text = { Text(state) },
+                            onClick = {
+                                selectedState = state
+                                selectedCity = "" // Reset city
+                                stateExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // City Selection
+            ExposedDropdownMenuBox(
+                expanded = cityExpanded,
+                onExpandedChange = { cityExpanded = !cityExpanded }
+            ) {
+                OutlinedTextField(
+                    value = if (selectedCity.isBlank()) "Select City" else selectedCity,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("City") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = cityExpanded) },
+                    modifier = Modifier.fillMaxWidth().menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = cityExpanded,
+                    onDismissRequest = { cityExpanded = false }
+                ) {
+                    cities.forEach { city ->
+                        DropdownMenuItem(
+                            text = { Text(city) },
+                            onClick = {
+                                selectedCity = city
+                                cityExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text("Select Cuisine", style = MaterialTheme.typography.labelMedium)
+            Column {
+                cuisinesList.chunked(3).forEach { chunk ->
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        chunk.forEach { c ->
+                            FilterChip(
+                                selected = cuisineType == c,
+                                onClick = { cuisineType = c },
+                                label = { Text(c) }
+                            )
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -204,14 +298,14 @@ fun RegisterScreen(
                     password != confirmPassword -> {
                         Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                     }
-                    selectedRole == UserType.RESTAURANT_OWNER && (restaurantName.isBlank() || restaurantAddress.isBlank()) -> {
-                        Toast.makeText(context, "Please fill restaurant details", Toast.LENGTH_SHORT).show()
+                    selectedRole == UserType.RESTAURANT_OWNER && (restaurantName.isBlank() || selectedCity.isBlank()) -> {
+                        Toast.makeText(context, "Please fill restaurant details and city", Toast.LENGTH_SHORT).show()
                     }
                     else -> {
                         viewModel.register(
                             fullName, email, phone, password, selectedRole.name,
                             restaurantName, restaurantDesc, restaurantAddress,
-                            logoUrl, bannerUrl
+                            cuisineType, selectedCity, logoUrl, bannerUrl
                         )
                     }
                 }

@@ -15,50 +15,43 @@ class DataSeeder(
     suspend fun seed() {
         if (restaurantDao.getAllRestaurants().isNotEmpty()) return
 
-        // 1. Pizza Hut
-        restaurantDao.insertRestaurant(
-            RestaurantEntity(
-                id = 1,
-                ownerEmail = "owner@pizzahut.com",
-                name = "Pizza Hut",
-                description = "Classic Pizzas & Wings",
-                address = "Downtown, Pune",
-                bannerUrl = "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800",
-                logoUrl = "https://www.pizzahut.co.in/assets/img/logo.png"
-            )
-        )
-        menuDao.insertCategory(CategoryEntity(id = 1, restaurantId = 1, name = "Veg Pizza"))
-        foodDao.insertFood(FoodEntity(restaurantId = 1, categoryId = 1, subCategoryId = 0, name = "Margherita", price = 299.0, description = "Cheese & Tomato", imageUrl = "https://images.unsplash.com/photo-1574071318508-1cdbcd80ad55?q=80&w=400"))
-        foodDao.insertFood(FoodEntity(restaurantId = 1, categoryId = 1, subCategoryId = 0, name = "Farmhouse", price = 399.0, description = "Mushroom, Onion, Tomato", imageUrl = "https://images.unsplash.com/photo-1571407970349-bc81e7e96d47?q=80&w=400"))
+        // Bhilai Restaurants
+        seedRestaurant(10, "Bhilai Burgers", "Best Burgers in Bhilai", "Civic Center, Bhilai", "Burger", "Bhilai", "https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800")
+        seedRestaurant(11, "Bhilai Pizza", "Cheese Overloaded", "Sector 10, Bhilai", "Pizza", "Bhilai", "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=800")
+        seedRestaurant(12, "Bhilai Tadka", "Spicy Indian Curry", "Nehru Nagar, Bhilai", "Indian", "Bhilai", "https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?q=80&w=800")
 
-        // 2. Burger King
-        restaurantDao.insertRestaurant(
-            RestaurantEntity(
-                id = 2,
-                ownerEmail = "owner@bk.com",
-                name = "Burger King",
-                description = "Home of the Whopper",
-                address = "Main Street, Mumbai",
-                bannerUrl = "https://images.unsplash.com/photo-1571091718767-18b5b1457add?q=80&w=800",
-                logoUrl = "https://www.burgerking.in/static/media/logo.77e48232.png"
-            )
-        )
-        menuDao.insertCategory(CategoryEntity(id = 2, restaurantId = 2, name = "Burgers"))
-        foodDao.insertFood(FoodEntity(restaurantId = 2, categoryId = 2, subCategoryId = 0, name = "Whopper Jr", price = 149.0, description = "Classic flame-grilled burger", imageUrl = "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=400"))
+        // Pune Restaurants
+        seedRestaurant(20, "Pune Pizza Hub", "Italian Delicacy", "FC Road, Pune", "Pizza", "Pune", "https://images.unsplash.com/photo-1574071318508-1cdbcd80ad55?q=80&w=800")
+        seedRestaurant(21, "Pune Chai", "Refreshment Spot", "Kothrud, Pune", "Coffee", "Pune", "https://images.unsplash.com/photo-1544787210-28272550d795?q=80&w=800")
 
-        // 3. Daal Bhaat House
+        // Mumbai Restaurants
+        seedRestaurant(30, "Mumbai Munchies", "Street Food Style", "Andheri, Mumbai", "Fast Food", "Mumbai", "https://images.unsplash.com/photo-1601050633647-81a35137d289?q=80&w=800")
+    }
+
+    private suspend fun seedRestaurant(id: Int, name: String, desc: String, addr: String, cuisine: String, region: String, banner: String) {
         restaurantDao.insertRestaurant(
             RestaurantEntity(
-                id = 3,
-                ownerEmail = "owner@daalbhaat.com",
-                name = "Daal Bhaat House",
-                description = "Authentic Indian Comfort Food",
-                address = "Local Market, Delhi",
-                bannerUrl = "https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=800",
-                logoUrl = ""
+                id = id,
+                ownerEmail = "owner$id@shop.com",
+                name = name,
+                description = desc,
+                address = addr,
+                cuisineType = cuisine,
+                region = region,
+                bannerUrl = banner
             )
         )
-        menuDao.insertCategory(CategoryEntity(id = 3, restaurantId = 3, name = "Thalis"))
-        foodDao.insertFood(FoodEntity(restaurantId = 3, categoryId = 3, subCategoryId = 0, name = "Special Daal Bhaat", price = 199.0, description = "Homemade style daal rice", imageUrl = "https://images.unsplash.com/photo-1589302168068-964664d93dc0?q=80&w=400"))
+        menuDao.insertCategory(CategoryEntity(id = id, restaurantId = id, name = cuisine))
+        foodDao.insertFood(
+            FoodEntity(
+                restaurantId = id,
+                categoryId = id,
+                subCategoryId = 0,
+                name = "Classic $cuisine",
+                price = 199.0,
+                description = "Delicious $name special",
+                imageUrl = banner
+            )
+        )
     }
 }

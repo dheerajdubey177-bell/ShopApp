@@ -12,6 +12,7 @@ import com.example.shop.config.AppConfig
 import com.example.shop.data.local.SessionManager
 import com.example.shop.data.local.database.DatabaseProvider
 import com.example.shop.data.repository.DataSeeder
+import com.example.shop.data.repository.UserLocationManager
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 
@@ -26,6 +27,12 @@ fun SplashScreen(
     LaunchedEffect(Unit) {
         // Seed dummy data
         DataSeeder(database.restaurantDao(), database.menuDao(), database.foodDao()).seed()
+        
+        // Initialize global location from session if it exists
+        val savedLocation = sessionManager.getLocation()
+        if (savedLocation != null) {
+            UserLocationManager.updateLocation(savedLocation)
+        }
         
         delay(3.seconds)
         val userEmail = sessionManager.getUser()
