@@ -1,0 +1,59 @@
+package com.example.shop.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen() {
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Settings")
+                }
+            )
+        }
+    ) { padding ->
+
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
+        ) {
+
+            Button(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Change Language")
+            }
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Button(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Dark Mode")
+            }
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            Button(
+                onClick = { },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Contact Support")
+            }
+        }
+    }
+}
